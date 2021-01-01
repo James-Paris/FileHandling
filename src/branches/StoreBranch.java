@@ -17,4 +17,18 @@ public abstract class StoreBranch {
 		}
 	}
 	
+	public void receiveShipment(Product product) {
+		if(!this.productAvailable.contains(product)) {
+			this.productAvailable.add(product);
+		}
+		for(int x=0; x < productAvailable.size(); x++) {
+			if(productAvailable.get(x).name.equals(product.name)) {
+				productAvailable.get(x).quantityInStock += product.quantityInStock;
+			}
+		}
+		
+	}
+	
+	public void shipOrder(Product product);
+	
 }
