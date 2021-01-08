@@ -1,4 +1,4 @@
-package branches;
+package com.branches;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +29,6 @@ public abstract class StoreBranch {
 		
 	}
 	
-	public void shipOrder(Product product);
+	public abstract void shipOrder(Product product);
 	
 }

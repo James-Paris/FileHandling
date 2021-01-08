@@ -1,4 +1,4 @@
-package branches;
+package com.branches;
 
 public class EastBranch {
 
