@@ -21,6 +21,8 @@ public class EastBranch extends StoreBranch {
 				throw new DeliveryUnavailableException("Bike is broken");
 			}
 			System.out.println("Bike delivering product: " + prod.name);
+			
+			
 		}
 		
 		public void setBroken(boolean broken) {

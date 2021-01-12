@@ -2,6 +2,8 @@ package com;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,18 +37,29 @@ public class ClothingStore {
 	}
 	
 	public void receiveShipments() {
-		storeBranches.get("east").receiveShipment(new StoreBranch.Product("hat", 100));
-		storeBranches.get("east").receiveShipment(new StoreBranch.Product("pants", 100));
-		storeBranches.get("east").receiveShipment(new StoreBranch.Product("shirts", 100));
-		storeBranches.get("east").receiveShipment(new StoreBranch.Product("shoes", 100));
+		storeBranches.get("east").receiveShipment(new StoreBranch.Product("hat", 500));
+		storeBranches.get("east").receiveShipment(new StoreBranch.Product("pants", 600));
+		storeBranches.get("east").receiveShipment(new StoreBranch.Product("shirts", 500));
+		storeBranches.get("east").receiveShipment(new StoreBranch.Product("shoes", 600));
 		
-		storeBranches.get("west").receiveShipment(new StoreBranch.Product("hats", 250));
-		storeBranches.get("west").receiveShipment(new StoreBranch.Product("pants", 250));
-		storeBranches.get("west").receiveShipment(new StoreBranch.Product("shirts", 250));
-		storeBranches.get("west").receiveShipment(new StoreBranch.Product("shoes", 250));
+		storeBranches.get("west").receiveShipment(new StoreBranch.Product("hats", 600));
+		storeBranches.get("west").receiveShipment(new StoreBranch.Product("pants",800));
+		storeBranches.get("west").receiveShipment(new StoreBranch.Product("shirts", 500));
+		storeBranches.get("west").receiveShipment(new StoreBranch.Product("shoes", 800));
+	}
+	
+	public void printStock() {
+		System.out.println("");
+		System.out.println("====================== Each Shop's Stock! ======================");
+		System.out.println("East Shop: " + storeBranches.get("east").printStock());
+		System.out.println("West Shop: " + storeBranches.get("west").printStock());
+		System.out.println("================================================================");
+		System.out.println("");
 	}
 	
 	public void readFromFile() throws IOException {
+		//C:\Users\jmparis\eclipse-workspace\HCLFileHandling\data
+		
 		File orderInputFile = new File("/Users/jmparis/eclipse-workspace/HCLFileHandling/data/Orders.csv");
 		FileInputStream fileistream = new FileInputStream(orderInputFile);
 		int r = 0;
@@ -55,33 +68,59 @@ public class ClothingStore {
 			sb.append((char) r);
 		}
 		String orders = sb.toString();
-		System.out.println(orders);
-		String[] lines = orders.split(",");
+		//System.out.println(orders);
+		//System.out.println("About to parse order out. . . ");
+		String[] lines = orders.split("\n");
 		for(String line : lines) {
 			String[] columns = line.split(",");
-			if(columns.length == 4) {
+			if(columns.length == 6) {
+				//System.out.println("CREATING ORDER: " + columns[0] + " " + columns[1] + " " + Integer.parseInt(columns[2]) + " "
+					//				+ Float.parseFloat(columns[3]) + " " + Integer.parseInt(columns[4]));
 				Order order = new Order(
 						columns[0],
 						columns[1],
 						Integer.parseInt(columns[2]),
-						Float.parseFloat(columns[3])
+						Float.parseFloat(columns[3]),
+						Integer.parseInt(columns[4])
 					);
 				receiveOrder(order);			
 			}
 		}
 	}
 	
+	public void savetoFile() throws IOException {
+		File orderOutputFile = new File("C:/Users/jmparis/eclipse-workspace/HCLFileHandling/data/OrdersUpdated.csv");
+		FileOutputStream ostream = new FileOutputStream(orderOutputFile);
+		int r = 0;
+		
+		if(orderOutputFile.createNewFile()) {
+			
+		} else {
+			
+		}
+		
+		for(int x=0; x<orders.size(); x++) {
+			String msg = "" + orders.get(x).product + "," + orders.get(x).closestLoc + "," + orders.get(x).size + "," + orders.get(x).price + ",0,\n";
+			ostream.write(msg.getBytes(), 0, msg.length());
+			ostream.flush();
+		}
+		
+		System.out.println("'OrdersUpdated.csv' has been saved successfully.");
+		
+	}
+	
 	public void receiveOrders() {
-		receiveOrder(new Order("shirts", "east", 8, 2.0F));
-		receiveOrder(new Order("shoes", "east", 10, 2.0F));
-		receiveOrder(new Order("pants", "east", 5, 2.0F));
-		receiveOrder(new Order("hats", "east", 2, 2.0F));
-		receiveOrder(new Order("shoes", "west", 15, 2.0F));
-		receiveOrder(new Order("shirts", "west", 5, 2.0F));
+		receiveOrder(new Order("shirts", "east", 8, 10F, 0));
+		receiveOrder(new Order("shoes", "east", 10, 12.5F, 0));
+		receiveOrder(new Order("pants", "east", 5, 11F, 0));
+		receiveOrder(new Order("hats", "east", 2, 9F, 0));
+		receiveOrder(new Order("shoes", "west", 15, 12.5F, 0));
+		receiveOrder(new Order("shirts", "west", 5, 10F, 0));
 	}
 	
 	public void receiveOrder(Order order) {
 		try {
+			//System.out.println("Added Order: " + order.toString());
             orders.add(order);
         } catch (Exception e) {
         	System.out.println("ERROR! Unable to receive order. Message: " + e.getMessage());
@@ -128,6 +167,7 @@ public class ClothingStore {
 		//track rev and orders processed
 		revenueProcessed += order.price;
 		ordersProcessed++;
+		System.out.println("DELIVERED! For: $" + order.price);
 		
 	}
 	
@@ -144,12 +184,14 @@ public class ClothingStore {
 	    public String closestLoc;
 	    public int size = 0;
 	    public float price = 0;
+	    public int stepInProcess = 0;
 
-		public Order(String prodName, String closestLoc, int size, float price) {
+		public Order(String prodName, String closestLoc, int size, float price, int stepInProcess) {
 			this.product = prodName;
 			this.closestLoc = closestLoc;
 			this.size = size;
 			this.price = price;
+			this.stepInProcess = stepInProcess;
 		}
 		
 		@Override
@@ -158,7 +200,7 @@ public class ClothingStore {
 					"processed=" + processed + 
 					", product=" + product + '\'' +
 					", size=" + size + 
-					", pricce=" + price +
+					", price=" + price +
 					'}';
 		}
 		
