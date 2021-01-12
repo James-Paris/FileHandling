@@ -32,6 +32,8 @@ public class StoreApp {
 				
 				case 3:
 					System.out.println("Thank you for using my Store Management System.");
+					ClothingStore cs = new ClothingStore();
+					cs.savetoFile();
 					return;
 			}
 			
